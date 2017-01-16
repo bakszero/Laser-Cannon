@@ -87,6 +87,7 @@ std::map <string, Base> bucketobj; //Only for bucket objects
 std::map <string, Base> brickobj; //Only for brick objects
 std::map <string, Base> backgroundobj; //Only for the background objects
 std::map <string, Base> laserobj; //Only for laser objects
+std::map <string, Base> mirrorobj; //Only for mirror objects
 
 std::map<string, Base> randomobj; //For random objects that float around or are not defined above
 
@@ -353,6 +354,29 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
       if (glfwGetKey(window,GLFW_KEY_RIGHT ) && glfwGetKey(window, GLFW_KEY_LEFT_ALT))
               bucketobj["bucket2"].x+=0.1;
 
+
+      //Translate the cannon front and rear objects up and down on keypress of S and F
+      if(glfwGetKey(window,GLFW_KEY_S))
+      {
+        if(cannonobj["rear"].y <= 3.3 && cannonobj["rear"].y >=-3.3)
+        {
+          cannonobj["rear"].y+=0.2;
+          cannonobj["front"].y+=0.2;
+        }
+      }
+
+      if(glfwGetKey(window,GLFW_KEY_F))
+      {
+        if(cannonobj["rear"].y <= 3.5 && cannonobj["rear"].y >=-3.5)
+        {
+          cannonobj["rear"].y-=0.2;
+          cannonobj["front"].y-=0.2;
+        }
+      }
+
+
+
+
       //Rotate the cannon front and rear objects on keypress of A and D
       if(glfwGetKey(window, GLFW_KEY_A))
             {
@@ -506,6 +530,8 @@ void createTriangle (string name, GLfloat weight, color rgb, GLfloat x[], GLfloa
   tempobj.friction=0.4;
   tempobj.health=100;
   tempobj.weight=weight;
+
+
 }
 
 
@@ -698,6 +724,70 @@ void createBrick (string name, GLfloat weight, color A, color B, color C, color 
   brickobj[name]=tempobj;
 
 }
+//Creates the mirror  object used in this code
+void createMirror (string name, GLfloat weight, color A, color B, color C, color D, GLfloat x, GLfloat y, GLfloat height, GLfloat width, string component, int angle)
+{
+
+
+  GLfloat w = 0.5*width;
+  GLfloat h = 0.5*height;
+  // GL3 accepts only Triangles. Quads are not supported
+   GLfloat vertex_buffer_data [] = {
+    -w,-h,0, // vertex 1
+    -w, h,0, // vertex 2
+    w, h, 0,// vertex 3
+
+    w,h,0, // vertex 3
+    w, -h, 0, // vertex 4
+    -w, -h, 0  // vertex 1
+  };
+
+   GLfloat color_buffer_data [] = {
+    A.r, A.g, A.b, // color 1
+    B.r, B.g, B.b, // color 2
+    C.r, C.g, C.b, // color 3
+
+    C.r, C.g, C.b, // color 3
+    D.r, D.g, D.b, // color 4
+    A.r, A.g, A.b // color 1
+  };
+
+  // create3DObject creates and returns a handle to a VAO that can be used later
+  rectangle = create3DObject(GL_TRIANGLES, 6, vertex_buffer_data, color_buffer_data, GL_FILL);
+
+  //Create the Base temporary object here corresponding to the name and this gets sorted
+
+  Base tempobj = {};
+  tempobj.rgb_color = A;
+  tempobj.name = name;
+  tempobj.object = rectangle;
+  tempobj.x=x;
+  tempobj.y=y;
+  tempobj.height=height;
+  tempobj.width=width;
+  tempobj.status=1;
+  //tempobj.col_type=color_type;
+  tempobj.inAir=0;
+  tempobj.x_speed=0;
+  tempobj.y_speed=0.018;
+  tempobj.fixed=0;
+  tempobj.radius=(sqrt(height*height+width*width))/2;
+  tempobj.friction=0.4;
+  tempobj.health=100;
+  tempobj.weight=weight;
+
+  mirrorobj[name]=tempobj;
+  /*std::random_device rd; // obtain a random number from hardware
+  std::mt19937 eng(rd()); // seed the generator
+  std::uniform_int_distribution<> distr(90, 180); // define the range*/
+
+  mirrorobj[name].angle= angle;
+
+
+
+
+
+}
 
 float camera_rotation_angle = 90;
 float rectangle_rotation = 0;
@@ -883,6 +973,31 @@ void draw ()
     }
 
 
+    //For Mirror Objects, display them
+    for( map<string,Base>::iterator it=mirrorobj.begin() ; it!=mirrorobj.end() ;  it++)
+    {
+      string currentobj = it->first;
+      cout << currentobj << endl;
+      glm::mat4 MVP;
+      Matrices.model = glm::mat4(1.0f);
+    //  brickobj[currentobj].y-=brickobj[currentobj].y_speed;
+
+      glm::mat4 translateRectangle = glm::translate (glm::vec3(mirrorobj[currentobj].x, mirrorobj[currentobj].y, 0));        // glTranslatef
+      glm::mat4 rotateRectangle = glm::rotate((float)(mirrorobj[currentobj].angle*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+      Matrices.model *= (translateRectangle *rotateRectangle);
+      MVP = VP * Matrices.model;
+      glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+      draw3DObject(mirrorobj[currentobj].object);
+
+    //  laserobj[currentobj].x += 0.25*cos(laserobj[currentobj].angle*M_PI/180.0f);
+    //  laserobj[currentobj].y += 0.25*sin(laserobj[currentobj].angle*M_PI/180.0f);
+
+
+      checkCollision(currentobj, "mirrorobj");
+    }
+
+
 
 
 
@@ -1000,8 +1115,25 @@ void checkCollision(string key, string check)
 
 
     }
+    for( std::map<string,Base>::iterator it=mirrorobj.begin() ; it!=mirrorobj.end() ;  it++)
+    {
+      string currentobj = it->first;
+      if( laserobj[key].status==1) //Black bricks
+      {
+        if(fabs( mirrorobj[currentobj].x - laserobj[key].x) < mirrorobj[currentobj].width/2 + laserobj[key].width/2
+         && fabs(mirrorobj[currentobj].y - laserobj[key].y )< mirrorobj[currentobj].height/2 + laserobj[key].height/2 )
+         {
+          laserobj[key].angle=2*mirrorobj[currentobj].angle-laserobj[key].angle;
+         }
+      }
+
+
+
+    }
 
   }
+
+  //else if (check=="mirrorobj")
 
 }
 
@@ -1048,6 +1180,7 @@ void initGL (GLFWwindow* window, int width, int height)
   //Create backgroud image
   createRectangle("sky",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,0,0,600,800,"backgroundobj");
   createCircle("sun",10000,skyblue1,3,3,0.5,100,"backgroundobj",1);
+  createCircle("sun2", 10000, cloudwhite, 2.9,3,0.5,100,"backgroundobj", 1);
 
 
   //Create bucket objects
@@ -1081,7 +1214,7 @@ void initGL (GLFWwindow* window, int width, int height)
     name.append(to_string(iterator));
     GLint randcol = rand()%3 + 1;
 
-    //Randomly generating colorful strings
+    //Randomly generating colorful bricks
 
     if(randcol==1)
     {
@@ -1098,7 +1231,18 @@ void initGL (GLFWwindow* window, int width, int height)
 
 
   //Create Laser Beam
-  //Object is created via createCircle when user presses the key
+  //Object is created via createCircle when user presses the key, not here
+
+  //Create Mirror objects
+  createMirror("hey",10000,gold,gold,gold,gold,0.1,-2.3,0.02,0.9,"mirrorobj", +120);
+  createMirror("hey2",10000,gold,gold,gold,gold,0.1,2.6,0.02,0.9,"mirrorobj", -140);
+
+  createMirror("hey3",10000,gold,gold,gold,gold,2.9,1.4,0.02,0.9,"mirrorobj", 110);
+  createMirror("hey4",10000,gold,gold,gold,gold,3.1,-1.3,0.02,0.9,"mirrorobj", -110);
+
+
+
+
 
 
 
@@ -1131,8 +1275,8 @@ void initGL (GLFWwindow* window, int width, int height)
 
 int main (int argc, char** argv)
 {
-	int width = 900;
-	int height = 900;
+	int width = 470;
+	int height = 470;
 
 
     GLFWwindow* window = initGLFW(width, height);
