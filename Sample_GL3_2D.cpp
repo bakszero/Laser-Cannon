@@ -95,8 +95,10 @@ int laser_count=1;
 
 //Create function prototype, otherwise we'll have to place createCircle above
 void createCircle (string name, GLfloat weight, color rgb_colorin, float x, float y, float r, int NoOfParts, string component, int fill);
-void checkCollision(string key);
+void checkCollision(string key, string check);
 void checkLaserCollision(string a);
+void createRectangle (string name, GLfloat weight, color A, color B, color C, color D, GLfloat x, GLfloat y, GLfloat height, GLfloat width, string component );
+
 
 
 
@@ -374,7 +376,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
       {
         string n = "laser";
         n.append(std::to_string(laser_count++)); //Converting to string and incrementing the laser count by 1
-        createCircle(n, 10000, {1.000, 0.941, 0.961},cannonobj["front"].x, cannonobj["front"].y, 0.1, 50, "laserobj", 1 );
+        createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x, cannonobj["front"].y, 0.1, 0.3, "laserobj" );
       }
 
       }
@@ -849,7 +851,7 @@ void draw ()
       draw3DObject(brickobj[currentobj].object);
 
       //Check for collisions between bricks and buckets
-      checkCollision(currentobj);
+      checkCollision(currentobj, "brickobj");
 
     }
 
@@ -877,7 +879,7 @@ void draw ()
       laserobj[currentobj].y += 0.25*sin(laserobj[currentobj].angle*M_PI/180.0f);
 
 
-      checkLaserCollision(currentobj);
+      checkCollision(currentobj, "laserobj");
     }
 
 
@@ -944,13 +946,16 @@ GLFWwindow* initGLFW (int width, int height)
 
 
 
-//Checking collision between bucket and falling bricks only
-void checkCollision(string key)
+//Checking collision between different set of objects depending on the check variable
+void checkCollision(string key, string check)
 {
+
+  if(check=="brickobj")
+  {
   map<string, Base>::iterator iter = brickobj.find(key) ;
   if( brickobj[key].col_type==2 )
   {
-    cout << brickobj[key].x;
+    //cout << brickobj[key].x;
     if(fabs(brickobj[key].x - bucketobj["bucket2"].x)<brickobj[key].width/2 + bucketobj["bucket2"].width/2
      && fabs(brickobj[key].y - bucketobj["bucket2"].y )<brickobj[key].height/2 + bucketobj["bucket2"].height/2  && brickobj[key].status==1)
       {
@@ -962,7 +967,7 @@ void checkCollision(string key)
 
   if( brickobj[key].col_type == 1)
   {
-    cout << brickobj[key].x;
+    //cout << brickobj[key].x;
 
     if(fabs(brickobj[key].x - bucketobj["bucket1"].x)<brickobj[key].width/2 + bucketobj["bucket1"].width/2
      && fabs(brickobj[key].y - bucketobj["bucket1"].y )<brickobj[key].height/2 + bucketobj["bucket1"].height/2  && brickobj[key].status==1)
@@ -973,6 +978,29 @@ void checkCollision(string key)
         //delete brickobj[key];
 
         }
+  }
+  }
+
+
+  else if (check=="laserobj")
+  {
+    for( std::map<string,Base>::iterator it=brickobj.begin() ; it!=brickobj.end() ;  it++)
+    {
+      string currentobj = it->first;
+      if( brickobj[currentobj].col_type == 0 && laserobj[key].status==1) //Black bricks
+      {
+        if(fabs(brickobj[currentobj].x - laserobj[key].x) < brickobj[currentobj].width/2 + laserobj[key].width/2
+         && fabs(brickobj[currentobj].y - laserobj[key].y )< brickobj[currentobj].height/2 + laserobj[key].height/2  && brickobj[currentobj].status==1)
+         {
+           brickobj[currentobj].status=0;
+           laserobj[key].status=0;
+         }
+      }
+
+
+
+    }
+
   }
 
 }
