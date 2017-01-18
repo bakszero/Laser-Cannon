@@ -400,7 +400,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
       {
         string n = "laser";
         n.append(std::to_string(laser_count++)); //Converting to string and incrementing the laser count by 1
-        createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x, cannonobj["front"].y, 0.1, 0.3, "laserobj" );
+        createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
       }
 
       }
@@ -419,17 +419,47 @@ void keyboardChar (GLFWwindow* window, unsigned int key)
 	}
 }
 
+GLdouble rightmouse_click=0;
+GLdouble rightmouse_x;
+GLdouble rightmouse_y;
+GLdouble newrightmouse_x;
+GLdouble newrightmouse_y;
+
+GLdouble leftmouse_click=0;
+GLdouble leftmouse_x;
+GLdouble leftmouse_y;
+GLdouble newleftmouse_x;
+GLdouble newleftmouse_y;
+
+
 /* Executed when a mouse button is pressed/released */
 void mouseButton (GLFWwindow* window, int button, int action, int mods)
 {
     switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT:
-            if (action == GLFW_RELEASE)
+            if (action == GLFW_RELEASE){
                 triangle_rot_dir *= -1;
+                string n = "laser";
+                n.append(std::to_string(laser_count++)); //Converting to string and incrementing the laser count by 1
+                createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
+
+                leftmouse_click=0;
+              }
+            if (action == GLFW_PRESS)
+              {
+                leftmouse_click=1;
+                //Tricky, but nice, since angle of the laser will be dependent on angle of the cannon, so no need to update the cannon automatically.
+                cannonobj["front"].angle = atan((newleftmouse_y - cannonobj["front"].y)/(newleftmouse_x - cannonobj["front"].x)) *180.0f/ M_PI;
+              }
             break;
         case GLFW_MOUSE_BUTTON_RIGHT:
             if (action == GLFW_RELEASE) {
                 rectangle_rot_dir *= -1;
+                rightmouse_click=0;
+            }
+             if (action == GLFW_PRESS)
+            {
+              rightmouse_click=1;
             }
             break;
         default:
@@ -600,6 +630,7 @@ void createRectangle (string name, GLfloat weight, color A, color B, color C, co
       laserobj[name]=tempobj;
       laserobj[name].angle=cannonobj["front"].angle;
     }
+
   else
     randomobj[name]=tempobj;
 
@@ -795,7 +826,7 @@ float triangle_rotation = 0;
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
-void draw ()
+void draw (GLFWwindow* window)
 {
   // clear the color and depth in the frame buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -857,6 +888,26 @@ void draw ()
 
   // draw3DObject draws the VAO given to it using current MVP matrix
 
+
+  //Mouse cursor position grab for both left and right clicks
+  glfwGetCursorPos(window, &rightmouse_x, &rightmouse_y);
+  glfwGetCursorPos(window, &leftmouse_x, &leftmouse_y);
+  cout << rightmouse_x << endl << rightmouse_y << endl;
+  newrightmouse_x=(rightmouse_x - 300);
+  newrightmouse_x*=4/300.0;
+  newrightmouse_y=(rightmouse_y - 300);
+  newrightmouse_y*=4/300.0;
+  newrightmouse_y=-newrightmouse_y;
+
+  newleftmouse_x=(leftmouse_x - 300);
+  newleftmouse_x*=4/300.0;
+  newleftmouse_y=(leftmouse_y - 300);
+  newleftmouse_y*=4/300.0;
+  newleftmouse_y=-newleftmouse_y;
+
+
+
+
   //For Background Objects
   for(map<string,Base>::iterator it=backgroundobj.begin();it!=backgroundobj.end();it++)
   {
@@ -865,6 +916,8 @@ void draw ()
     //cout << currentobj << endl;
     glm::mat4 MVP;
     Matrices.model = glm::mat4(1.0f);
+
+
 
     glm::mat4 translateRectangle = glm::translate (glm::vec3(backgroundobj[currentobj].x, backgroundobj[currentobj].y, 0));        // glTranslatef
     glm::mat4 rotateRectangle = glm::rotate((float)(rectangle_rotation*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
@@ -881,6 +934,8 @@ void draw ()
   for(map<string,Base>::iterator it=bucketobj.begin();it!=bucketobj.end();it++)
   {   string currentobj = it->first;
 
+
+
     //cout << currentobj << endl;
     glm::mat4 MVP;
     Matrices.model = glm::mat4(1.0f);
@@ -895,10 +950,14 @@ void draw ()
     //checkCollision(currentobj);
   }
 
+  //Bucket drag
+  if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket1"].x+(0.5*bucketobj["bucket1"].width))) && (newrightmouse_x >= (bucketobj["bucket1"].x-(0.5*bucketobj["bucket1"].width))))
+        bucketobj["bucket1"].x=newrightmouse_x;
+  if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket2"].x+(0.5*bucketobj["bucket2"].width))) && (newrightmouse_x >= (bucketobj["bucket2"].x-(0.5*bucketobj["bucket2"].width))))
+        bucketobj["bucket2"].x=newrightmouse_x;
 
 
-
-    //For Cannon Objects
+  //For Cannon Objects
   for( map<string,Base>::iterator it=cannonobj.begin() ; it!=cannonobj.end() ;  it++)
     {   string currentobj = it->first;
 
@@ -914,6 +973,11 @@ void draw ()
 
       draw3DObject(cannonobj[currentobj].object);
     }
+
+
+  //For mouse-click of cannon front part, no need to place this inside the for loop of Cannon or Laser.
+  if(leftmouse_click==1)
+    cannonobj["front"].angle = atan((newleftmouse_y - cannonobj["front"].y)/(newleftmouse_x - cannonobj["front"].x)) *180.0f/ M_PI;
 
 
 
@@ -952,7 +1016,11 @@ void draw ()
 
       if(laserobj[currentobj].status==0)
         continue;
-      cout << currentobj << endl;
+      //cout << currentobj << endl;
+
+
+
+
       glm::mat4 MVP;
       Matrices.model = glm::mat4(1.0f);
     //  brickobj[currentobj].y-=brickobj[currentobj].y_speed;
@@ -965,6 +1033,8 @@ void draw ()
 
       draw3DObject(laserobj[currentobj].object);
 
+
+
       laserobj[currentobj].x += 0.25*cos(laserobj[currentobj].angle*M_PI/180.0f);
       laserobj[currentobj].y += 0.25*sin(laserobj[currentobj].angle*M_PI/180.0f);
 
@@ -973,11 +1043,17 @@ void draw ()
     }
 
 
+
+
+
+
+
+
     //For Mirror Objects, display them
     for( map<string,Base>::iterator it=mirrorobj.begin() ; it!=mirrorobj.end() ;  it++)
     {
       string currentobj = it->first;
-      cout << currentobj << endl;
+    //  cout << currentobj << endl;
       glm::mat4 MVP;
       Matrices.model = glm::mat4(1.0f);
     //  brickobj[currentobj].y-=brickobj[currentobj].y_speed;
@@ -1054,7 +1130,7 @@ GLFWwindow* initGLFW (int width, int height)
 
     /* Register function to handle mouse click */
     glfwSetMouseButtonCallback(window, mouseButton);  // mouse button clicks
-  //  glfwSetScrollCallback(window, mouseScroll); //enable mouse scrolling
+    //glfwSetScrollCallback(window, mouseScroll); //enable mouse scrolling
 
     return window;
 }
@@ -1075,7 +1151,7 @@ void checkCollision(string key, string check)
      && fabs(brickobj[key].y - bucketobj["bucket2"].y )<brickobj[key].height/2 + bucketobj["bucket2"].height/2  && brickobj[key].status==1)
       {
       brickobj[key].status=0;
-     //brickobj.erase(iter);  //Erasing the map gives a segmentation fault, use status
+      brickobj.erase(iter);  //Erasing the map gives a segmentation fault, use status, 2nd trial does not! USE IT! :)
        //delete brickobj[key];
      }
   }
@@ -1089,7 +1165,7 @@ void checkCollision(string key, string check)
         {
 
         brickobj[key].status=0;
-      //brickobj.erase(iter);
+        brickobj.erase(iter);
         //delete brickobj[key];
 
         }
@@ -1111,26 +1187,48 @@ void checkCollision(string key, string check)
            laserobj[key].status=0;
          }
       }
-
-
-
     }
     for( std::map<string,Base>::iterator it=mirrorobj.begin() ; it!=mirrorobj.end() ;  it++)
     {
       string currentobj = it->first;
-      if( laserobj[key].status==1) //Black bricks
+/*
+      float dis1,dis2;
+        dis2=laserobj[key].y+laserobj[key].width*0.25*sin(laserobj[key].angle*M_PI/180.0f);
+        dis1=laserobj[key].x+laserobj[key].width*0.25*cos(laserobj[key].angle*M_PI/180.0f);
+        float dis3=(dis1-mirrorobj[currentobj].x)/cos(mirrorobj[currentobj].angle*M_PI/180.0f);
+        float dis4=(dis2-mirrorobj[currentobj].y)/sin(mirrorobj[currentobj].angle*M_PI/18.0f);
+        if (dis3 > -1 && dis3 < 1 && dis4 > -1 && dis4<1 && abs(dis3-dis4)<=0.1)
+        {
+          laserobj[key].angle = 2*mirrorobj[currentobj].angle - laserobj[key].angle;
+        }
+
+
+*/
+
+
+    /*  GLfloat dis1;
+      GLfloat dis2;
+       dis2=laserobj[key].y+laserobj[key].width*sin(laserobj[key].angle*M_PI/180.0f);
+       dis1=laserobj[key].x+laserobj[key].width*cos(laserobj[key].angle*M_PI/180.0f);
+
+       GLfloat dis3=(dis1-mirrorobj[currentobj].x)/cos(mirrorobj[currentobj].angle*M_PI/180.0f);
+       GLfloat dis4=(dis2-mirrorobj[currentobj].y)/sin(mirrorobj[currentobj].angle*M_PI/18.0f);
+       if (laserobj[key].status==1 && dis3 > -laserobj[key].width/2 && dis3 < laserobj[key].width/2 && dis4 > -laserobj[key].height/2 && dis4<laserobj[key].height/2 && fabs(dis3-dis4)<=0.1)
+       {
+           //cout << "collide mirror" << endl;
+           laserobj[key].angle = 2*mirrorobj[currentobj].angle - laserobj[key].angle;
+         }
+*/
+
+      if( laserobj[key].status==1)
       {
-        if(fabs( mirrorobj[currentobj].x - laserobj[key].x) < mirrorobj[currentobj].width/2 + laserobj[key].width/2
-         && fabs(mirrorobj[currentobj].y - laserobj[key].y )< mirrorobj[currentobj].height/2 + laserobj[key].height/2 )
+        if(fabs( mirrorobj[currentobj].x- laserobj[key].x) < mirrorobj[currentobj].width/2 + laserobj[key].width/2+0.13
+         && fabs(mirrorobj[currentobj].y - laserobj[key].y )< mirrorobj[currentobj].height/2 + laserobj[key].height/2+0.13)
          {
           laserobj[key].angle=2*mirrorobj[currentobj].angle-laserobj[key].angle;
          }
       }
-
-
-
     }
-
   }
 
   //else if (check=="mirrorobj")
@@ -1205,7 +1303,9 @@ void initGL (GLFWwindow* window, int width, int height)
     //cout << randcol.r << randcol.g << randcol.b;
 
     //Generating random float value
-    GLfloat randfloat= -1.5 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(4.0)));
+    GLfloat randfloat1= -2.5 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(2.3)));
+    GLfloat randfloat2= 1 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.5)));
+
     //std::uniform_int_distribution<int> uni(-1,3); // guaranteed unbiased
     //auto rand_int = uni(rng);
 
@@ -1214,17 +1314,37 @@ void initGL (GLFWwindow* window, int width, int height)
     name.append(to_string(iterator));
     GLint randcol = rand()%3 + 1;
 
-    //Randomly generating colorful bricks
+    //Randomly generating colorful bricks in two segments in two set of float ranges
 
     if(randcol==1)
     {
-      createBrick(name,10000,green,green,green,green,randfloat,y,0.3,0.2,"brickobj",2);
+      GLint random_var = rand()%2 + 1;
+      if(random_var==1)
+      createBrick(name,10000,green,green,green,green,randfloat1,y,0.3,0.2,"brickobj",2);
+      else
+      createBrick(name,10000,green,green,green,green,randfloat2,y,0.3,0.2,"brickobj",2);
+
       //checkCollision(brickobj[name], bucketobj["bucket1"]);
     }
     else if(randcol==2)
-    createBrick(name,10000,black,black, black, black,randfloat,y,0.3,0.2,"brickobj",0);
+    {
+
+      GLint random_var = rand()%2 + 1;
+      if(random_var==1)
+    createBrick(name,10000,black,black, black, black,randfloat1,y,0.3,0.2,"brickobj",0);
+    else
+    createBrick(name,10000,black,black, black, black,randfloat2,y,0.3,0.2,"brickobj",0);
+
+    }
     else if(randcol==3)
-    createBrick(name,10000,red,red, red,red,randfloat,y,0.3,0.2,"brickobj",1);
+    {
+      GLint random_var = rand()%2 + 1;
+      if(random_var==1)
+        createBrick(name,10000,red,red, red,red,randfloat1,y,0.3,0.2,"brickobj",1);
+      else
+      createBrick(name,10000,red,red, red,red,randfloat2,y,0.3,0.2,"brickobj",1);
+
+    }
 
     y+=1;
   }
@@ -1234,22 +1354,11 @@ void initGL (GLFWwindow* window, int width, int height)
   //Object is created via createCircle when user presses the key, not here
 
   //Create Mirror objects
-  createMirror("hey",10000,gold,gold,gold,gold,0.1,-2.3,0.02,0.9,"mirrorobj", +120);
-  createMirror("hey2",10000,gold,gold,gold,gold,0.1,2.6,0.02,0.9,"mirrorobj", -140);
+  createMirror("hey",10000,darkpink,darkpink,darkpink,darkpink,0.1,-2.3,0.06,0.8,"mirrorobj", -120);
+  createMirror("hey2",10000,darkpink,darkpink,darkpink,darkpink,0.1,2.6,0.06,0.8,"mirrorobj", 140);
 
-  createMirror("hey3",10000,gold,gold,gold,gold,2.9,1.4,0.02,0.9,"mirrorobj", 110);
-  createMirror("hey4",10000,gold,gold,gold,gold,3.1,-1.3,0.02,0.9,"mirrorobj", -110);
-
-
-
-
-
-
-
-
-
-
-
+  createMirror("hey3",10000,darkpink,darkpink,darkpink,darkpink,2.9,1.4,0.06,0.8,"mirrorobj", 140);
+  createMirror("hey4",10000,darkpink,darkpink,darkpink,darkpink,3.1,-1.3,0.06,0.8,"mirrorobj", -140);
 
 
 	// Create and compile our GLSL program from the shaders
@@ -1275,8 +1384,8 @@ void initGL (GLFWwindow* window, int width, int height)
 
 int main (int argc, char** argv)
 {
-	int width = 470;
-	int height = 470;
+	int width = 600;
+	int height = 600;
 
 
     GLFWwindow* window = initGLFW(width, height);
@@ -1295,7 +1404,7 @@ int main (int argc, char** argv)
 
       //  if(now_time - brick_time >= 0.08)
         // OpenGL Draw commands
-        draw();
+        draw(window);
 
 
 
