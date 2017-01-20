@@ -91,15 +91,22 @@ std::map <string, Base> mirrorobj; //Only for mirror objects
 
 std::map<string, Base> randomobj; //For random objects that float around or are not defined above
 
-//Keep track of laser count and the objects
+//Keep track of laser count and other globals
 int laser_count=1;
+GLfloat zoom_camera = 1;
+float x_change = 0; //For the camera pan
+float y_change = 0; //For the camera pan
+
+
+
 
 //Create function prototype, otherwise we'll have to place createCircle above
 void createCircle (string name, GLfloat weight, color rgb_colorin, float x, float y, float r, int NoOfParts, string component, int fill);
 void checkCollision(string key, string check);
 void checkLaserCollision(string a);
 void createRectangle (string name, GLfloat weight, color A, color B, color C, color D, GLfloat x, GLfloat y, GLfloat height, GLfloat width, string component );
-
+void mousescroll(GLFWwindow* window, double xoffset, double yoffset);
+void check_pan();
 
 
 
@@ -403,7 +410,66 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
         createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
       }
 
+
+      //Zoom in, zoom out
+      if(glfwGetKey(window, GLFW_KEY_UP))
+      {
+        mousescroll(window,0,+1);
+        check_pan();
       }
+      if(glfwGetKey(window, GLFW_KEY_DOWN))
+      {
+        mousescroll(window,0,-1);
+        check_pan();
+      }
+
+
+
+
+
+
+      }
+}
+
+
+
+void mousescroll(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (yoffset==-1) {
+        zoom_camera /= 1.1; //make it bigger than current size
+    }
+    else if(yoffset==1){
+        zoom_camera *= 1.1; //make it bigger than current size
+    }
+    if (zoom_camera<=1) {
+        zoom_camera = 1;
+    }
+    if (zoom_camera>=4) {
+        zoom_camera=4;
+    }
+    if(x_change-4.0f/zoom_camera<-4)
+        x_change=-4+4.0f/zoom_camera;
+    else if(x_change+4.0f/zoom_camera>4)
+        x_change=4-4.0f/zoom_camera;
+    if(y_change-4.0f/zoom_camera<-4)
+        y_change=-4+4.0f/zoom_camera;
+    else if(y_change+4.0f/zoom_camera>4)
+        y_change=4-4.0f/zoom_camera;
+    Matrices.projection = glm::ortho((float)(-4.0f/zoom_camera+x_change), (float)(4.0f/zoom_camera+x_change), (float)(-4.0f/zoom_camera+y_change), (float)(4.0f/zoom_camera+y_change), 0.1f, 500.0f);
+}
+
+
+
+//Ensure the panning does not go out of the map
+void check_pan(){
+    if(x_change-400.0f/zoom_camera<-400)
+        x_change=-400+400.0f/zoom_camera;
+    else if(x_change+400.0f/zoom_camera>400)
+        x_change=400-400.0f/zoom_camera;
+    if(y_change-300.0f/zoom_camera<-300)
+        y_change=-300+300.0f/zoom_camera;
+    else if(y_change+300.0f/zoom_camera>300)
+        y_change=300-300.0f/zoom_camera;
 }
 
 /* Executed for character input (like in text boxes) */
@@ -828,6 +894,9 @@ float triangle_rotation = 0;
 /* Edit this function according to your assignment */
 void draw (GLFWwindow* window)
 {
+
+  //Matrices.projection = glm::ortho((float)(-400.0f), (float)(400.0f), (float)(-300.0f), (float)(300.0f), 0.1f, 500.0f);
+
   // clear the color and depth in the frame buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -975,21 +1044,27 @@ void draw (GLFWwindow* window)
     }
 
 
-  //For mouse-click of cannon front part, no need to place this inside the for loop of Cannon or Laser.
-  if(leftmouse_click==1)
-    cannonobj["front"].angle = atan((newleftmouse_y - cannonobj["front"].y)/(newleftmouse_x - cannonobj["front"].x)) *180.0f/ M_PI;
+    //For mouse-click of cannon front part, no need to place this inside the for loop of Cannon or Laser.
+    if(leftmouse_click==1)
+      cannonobj["front"].angle = atan((newleftmouse_y - cannonobj["front"].y)/(newleftmouse_x - cannonobj["front"].x)) *180.0f/ M_PI;
+
+
 
 
 
 
     //For Brick Objects
-    for( map<string,Base>::iterator it=brickobj.begin() ; it!=brickobj.end() ;  it++)
+    for( map<string,Base>::iterator it=brickobj.begin() ; it!=brickobj.end() ;  )
     {
 
       string currentobj = it->first;
       if(brickobj[currentobj].status==0)
-        continue;
-      //cout << "Status of current object is :" <<brickobj[currentobj].status << endl;
+        {
+          it++;
+          continue;
+        }
+
+      cout << "Status of current object is : " <<brickobj[currentobj].name << endl;
 
 
       glm::mat4 MVP;
@@ -1006,6 +1081,10 @@ void draw (GLFWwindow* window)
 
       //Check for collisions between bricks and buckets
       checkCollision(currentobj, "brickobj");
+
+
+
+      it++;
 
     }
 
@@ -1130,7 +1209,7 @@ GLFWwindow* initGLFW (int width, int height)
 
     /* Register function to handle mouse click */
     glfwSetMouseButtonCallback(window, mouseButton);  // mouse button clicks
-    //glfwSetScrollCallback(window, mouseScroll); //enable mouse scrolling
+    glfwSetScrollCallback(window, mousescroll); //enable mouse scrolling
 
     return window;
 }
@@ -1151,7 +1230,7 @@ void checkCollision(string key, string check)
      && fabs(brickobj[key].y - bucketobj["bucket2"].y )<brickobj[key].height/2 + bucketobj["bucket2"].height/2  && brickobj[key].status==1)
       {
       brickobj[key].status=0;
-      brickobj.erase(iter);  //Erasing the map gives a segmentation fault, use status, 2nd trial does not! USE IT! :)
+      //brickobj.erase(iter);  //Erasing the map gives a segmentation fault, use status, 2nd trial does not! USE IT! :)
        //delete brickobj[key];
      }
   }
@@ -1165,7 +1244,7 @@ void checkCollision(string key, string check)
         {
 
         brickobj[key].status=0;
-        brickobj.erase(iter);
+        //brickobj.erase(iter);
         //delete brickobj[key];
 
         }
@@ -1295,7 +1374,7 @@ void initGL (GLFWwindow* window, int width, int height)
   int iterator;
 
   int y=4;
-  for(iterator=1; iterator<=1000; iterator++)
+  for(iterator=1; iterator<=30; iterator++)
   {
     //GLfloat randfloatcol= static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(255.0)));
 
@@ -1330,7 +1409,7 @@ void initGL (GLFWwindow* window, int width, int height)
     {
 
       GLint random_var = rand()%2 + 1;
-      if(random_var==1)
+    if(random_var==1)
     createBrick(name,10000,black,black, black, black,randfloat1,y,0.3,0.2,"brickobj",0);
     else
     createBrick(name,10000,black,black, black, black,randfloat2,y,0.3,0.2,"brickobj",0);
