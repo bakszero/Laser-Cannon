@@ -976,8 +976,93 @@ void segmentclear()
 
 void segmentsetter()
 {
+
+  if (globalscore < 0)
+  {
+    scoreboardobj["seven"].status=1;
+    GLint newglobalscore = abs(globalscore);
+    GLint newright = newglobalscore%10;
+    if (newright==1)
+    {
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["eleven"].status =1;
+
+    }
+
+    else if (newright==2)
+    {
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["twelve"].status =1;
+      scoreboardobj["thirteen"].status =1;
+      scoreboardobj["fourteen"].status =1;
+
+
+
+    }
+    else if(newright==3)
+    {
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["eleven"].status =1;
+      scoreboardobj["twelve"].status =1;
+      scoreboardobj["fourteen"].status =1;
+    }
+     else if (newright == 4)
+    {
+      scoreboardobj["eight"].status =1;
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["eleven"].status =1;
+      scoreboardobj["fourteen"].status =1;
+    }
+    else if (newright==5)
+    {
+      scoreboardobj["eight"].status =1;
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["fourteen"].status =1;
+      scoreboardobj["eleven"].status =1;
+      scoreboardobj["twelve"].status =1;
+    }
+    else if (newright==6)
+    {
+      scoreboardobj["eight"].status =1;
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["fourteen"].status =1;
+      scoreboardobj["eleven"].status =1;
+      scoreboardobj["twelve"].status =1;
+      scoreboardobj["thirteen"].status =1;
+    }
+    else if(newright==7)
+    {
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["eleven"].status =1;
+    }
+    else if(newright==8)
+    {
+      scoreboardobj["eight"].status =1;
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["eleven"].status =1;
+      scoreboardobj["twelve"].status =1;
+      scoreboardobj["thirteen"].status =1;
+      scoreboardobj["fourteen"].status =1;
+    }
+    else if(newright==9)
+    {
+      scoreboardobj["eight"].status =1;
+      scoreboardobj["nine"].status =1;
+      scoreboardobj["ten"].status =1;
+      scoreboardobj["eleven"].status =1;
+      scoreboardobj["twelve"].status =1;
+      scoreboardobj["fourteen"].status =1;
+    }
+    return;
+  }
+
   GLint left = globalscore/10;
   GLint right = globalscore%10;
+
   //cout << "left is " << left << " and right is " <<right << endl;
 
   //Set the status to 1 for the left digit
@@ -1724,7 +1809,7 @@ void initGL (GLFWwindow* window, int width, int height)
 	// Create the models
 	//	createTriangle (); // Generate the VAO, VBOs, vertices data & copy into the array buffer
 
-	//Create backgroud image
+	//Create background image
 	createRectangle("sky",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,0,0,600,800,"backgroundobj");
 	createCircle("sun",10000,skyblue1,3,3,0.5,100,"backgroundobj",1);
 	createCircle("sun2", 10000, cloudwhite, 2.9,3.15,0.5,100,"backgroundobj", 1);
@@ -1744,7 +1829,7 @@ void initGL (GLFWwindow* window, int width, int height)
 	int iterator;
 
 	int y=4;
-	for(iterator=1; iterator<=50; iterator++)
+	for(iterator=1; iterator<=60; iterator++)
 	{
 		//GLfloat randfloatcol= static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(255.0)));
 		//color randcol = { randfloatcol, randfloatcol, randfloatcol};
@@ -1843,7 +1928,7 @@ window = initGLFW(width, height);
 
 
 	/* Draw in loop */
-	while (!glfwWindowShouldClose(window) && game_status ==1  && globalscore >=-2 ) {
+	while (!glfwWindowShouldClose(window) && game_status ==1  && globalscore >=-10) {
 
 		now_time=glfwGetTime();
 
