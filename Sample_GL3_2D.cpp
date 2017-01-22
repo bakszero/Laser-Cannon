@@ -978,7 +978,7 @@ void draw (GLFWwindow* window)
   //Mouse cursor position grab for both left and right clicks
   glfwGetCursorPos(window, &rightmouse_x, &rightmouse_y);
   glfwGetCursorPos(window, &leftmouse_x, &leftmouse_y);
-  cout << rightmouse_x << endl << rightmouse_y << endl;
+  //cout << rightmouse_x << endl << rightmouse_y << endl;
   newrightmouse_x=(rightmouse_x - 300);
   newrightmouse_x*=4/300.0;
   newrightmouse_y=(rightmouse_y - 300);
@@ -1039,9 +1039,10 @@ void draw (GLFWwindow* window)
   }
 
   //Bucket drag
-  if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket1"].x+(0.5*bucketobj["bucket1"].width))) && (newrightmouse_x >= (bucketobj["bucket1"].x-(0.5*bucketobj["bucket1"].width))))
+  //Smooth drag added
+  if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket1"].x+(0.75*bucketobj["bucket1"].width))) && (newrightmouse_x >= (bucketobj["bucket1"].x-(0.75*bucketobj["bucket1"].width))))
         bucketobj["bucket1"].x=newrightmouse_x;
-  if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket2"].x+(0.5*bucketobj["bucket2"].width))) && (newrightmouse_x >= (bucketobj["bucket2"].x-(0.5*bucketobj["bucket2"].width))))
+  if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket2"].x+(0.75*bucketobj["bucket2"].width))) && (newrightmouse_x >= (bucketobj["bucket2"].x-(0.75*bucketobj["bucket2"].width))))
         bucketobj["bucket2"].x=newrightmouse_x;
 
 
@@ -1061,6 +1062,16 @@ void draw (GLFWwindow* window)
 
       draw3DObject(cannonobj[currentobj].object);
     }
+
+
+    //Cannon drag via mouse
+    if ((rightmouse_click==1) && (newrightmouse_x<=(cannonobj["front"].x+(0.5*cannonobj["front"].width))) && (newrightmouse_x >= (cannonobj["rear"].x-(0.5*bucketobj["bucket1"].width)))
+        && (newrightmouse_y<=cannonobj["rear"].y+(0.8*cannonobj["rear"].height)) && (newrightmouse_y>=cannonobj["rear"].y-(0.8*cannonobj["rear"].height)))
+          {
+            cannonobj["rear"].y=newrightmouse_y;
+            cannonobj["front"].y=newleftmouse_y;
+          }
+
 
 
     //For mouse-click of cannon front part, no need to place this inside the for loop of Cannon or Laser.
@@ -1083,7 +1094,7 @@ void draw (GLFWwindow* window)
           continue;
         }
 
-      cout << "Status of current object is : " <<brickobj[currentobj].name << endl;
+      //cout << "Status of current object is : " <<brickobj[currentobj].name << endl;
 
 
       glm::mat4 MVP;
