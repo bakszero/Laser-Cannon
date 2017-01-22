@@ -423,6 +423,18 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
         check_pan();
       }
 
+      //Pan the screen
+      if(glfwGetKey(window, GLFW_KEY_RIGHT))
+          {
+          x_change+=10;
+          check_pan();
+        }
+        if(glfwGetKey(window, GLFW_KEY_LEFT))
+        {
+          x_change-=10;
+          check_pan();
+        }
+
 
 
 
@@ -462,14 +474,14 @@ void mousescroll(GLFWwindow* window, double xoffset, double yoffset)
 
 //Ensure the panning does not go out of the map
 void check_pan(){
-    if(x_change-400.0f/zoom_camera<-400)
-        x_change=-400+400.0f/zoom_camera;
-    else if(x_change+400.0f/zoom_camera>400)
-        x_change=400-400.0f/zoom_camera;
-    if(y_change-300.0f/zoom_camera<-300)
-        y_change=-300+300.0f/zoom_camera;
-    else if(y_change+300.0f/zoom_camera>300)
-        y_change=300-300.0f/zoom_camera;
+    if(x_change-4.0f/zoom_camera<-4)
+        x_change=-4+4.0f/zoom_camera;
+    else if(x_change+4.0f/zoom_camera>4)
+        x_change=4-4.0f/zoom_camera;
+    if(y_change-4.0f/zoom_camera<-4)
+        y_change=-4+4.0f/zoom_camera;
+    else if(y_change+4.0f/zoom_camera>4)
+        y_change=4-4.0f/zoom_camera;
 }
 
 /* Executed for character input (like in text boxes) */
@@ -504,7 +516,7 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
     switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT:
             if (action == GLFW_RELEASE){
-                triangle_rot_dir *= -1;
+                //triangle_rot_dir *= -1;
                 string n = "laser";
                 n.append(std::to_string(laser_count++)); //Converting to string and incrementing the laser count by 1
                 createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
@@ -563,11 +575,13 @@ void reshapeWindow (GLFWwindow* window, int width, int height)
 VAO *triangle, *rectangle;
 
 // Creates the triangle object used in this sample code
-void createTriangle ()
+
+
+/*void createTriangle ()
 {
   /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
 
-  /* Define vertex array as used in glBegin (GL_TRIANGLES) */
+  /* Define vertex array as used in glBegin (GL_TRIANGLES)
   static GLfloat vertex_buffer_data [] = {
     0, 1,0, // vertex 0
     -1,-1,0, // vertex 1
@@ -584,16 +598,17 @@ void createTriangle ()
   triangle = create3DObject(GL_TRIANGLES, 3, vertex_buffer_data, color_buffer_data, GL_LINE);
 
 }
+
 // Creates the triangle object used in this sample code
 void createTriangle (string name, GLfloat weight, color rgb, GLfloat x[], GLfloat y[], string component, GLint fill)
 {
-  /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen */
+  /* ONLY vertices between the bounds specified in glm::ortho will be visible on screen
 
   GLfloat xc=(x[0]+x[1]+x[2])/3;
   GLfloat yc=(y[0]+y[1]+y[2])/3;
 
 
-  /* Define vertex array as used in glBegin (GL_TRIANGLES) */
+  /* Define vertex array as used in glBegin (GL_TRIANGLES)
   static GLfloat vertex_buffer_data [] = {
     x[0]-xc,y[0]-yc,0, // vertex 0
     x[1]-xc,y[1]-yc,0, // vertex 1
@@ -628,7 +643,7 @@ void createTriangle (string name, GLfloat weight, color rgb, GLfloat x[], GLfloa
   tempobj.weight=weight;
 
 
-}
+}*/
 
 
 // Creates the rectangle object used in this sample code
@@ -706,8 +721,10 @@ void createRectangle (string name, GLfloat weight, color A, color B, color C, co
 //Creates the circles used in the code
 void createCircle (string name, GLfloat weight, color rgb_colorin, float x, float y, float r, int NoOfParts, string component, int fill)
 {
-    int parts = NoOfParts;
-    float radius = r;
+    int parts;
+    parts = NoOfParts;
+    float radius;
+    radius = r;
     GLfloat vertex_buffer_data[parts*9];
     GLfloat color_buffer_data[parts*9];
     int i,j;
@@ -975,6 +992,8 @@ void draw (GLFWwindow* window)
   newleftmouse_y=-newleftmouse_y;
 
 
+
+  Matrices.projection = glm::ortho((float)(-4.0f/zoom_camera+x_change), (float)(4.0f/zoom_camera+x_change), (float)(-4.0f/zoom_camera+y_change), (float)(4.0f/zoom_camera+y_change), 0.1f, 500.0f);
 
 
   //For Background Objects
@@ -1374,7 +1393,7 @@ void initGL (GLFWwindow* window, int width, int height)
   int iterator;
 
   int y=4;
-  for(iterator=1; iterator<=30; iterator++)
+  for(iterator=1; iterator<=500; iterator++)
   {
     //GLfloat randfloatcol= static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(255.0)));
 
