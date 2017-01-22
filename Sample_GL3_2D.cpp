@@ -99,6 +99,8 @@ int laser_count=1;
 GLfloat zoom_camera = 1;
 float x_change = 0; //For the camera pan
 float y_change = 0; //For the camera pan
+GLdouble prev_laser_time;
+GLdouble new_laser_time;
 
 GLint game_status = 1;
 
@@ -413,8 +415,16 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			string n = "laser";
 			n.append(std::to_string(laser_count++)); //Converting to string and incrementing the laser count by 1
-			createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
-		}
+
+      new_laser_time=glfwGetTime();
+
+      if(n!="laser1" && new_laser_time - prev_laser_time > 1)
+			   {
+          createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
+         prev_laser_time=glfwGetTime();
+       }
+
+  	 }
 
 
 		//Zoom in, zoom out
@@ -559,8 +569,14 @@ void mouseButton (GLFWwindow* window, int button, int action, int mods)
 				//triangle_rot_dir *= -1;
 				string n = "laser";
 				n.append(std::to_string(laser_count++)); //Converting to string and incrementing the laser count by 1
-				createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
-
+        //Time gap between successive laser shots
+        new_laser_time=glfwGetTime();
+        if(n!="laser1" && new_laser_time - prev_laser_time > 1)
+           {
+            createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
+           prev_laser_time=glfwGetTime();
+         }
+				//createRectangle(n, 10000, {1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},{1.000, 0.941, 0.961},cannonobj["front"].x+0.3, cannonobj["front"].y, 0.08, 0.2, "laserobj" );
 				leftmouse_click=0;
 			}
 			if (action == GLFW_PRESS)
@@ -1928,7 +1944,7 @@ window = initGLFW(width, height);
 
 
 	/* Draw in loop */
-	while (!glfwWindowShouldClose(window) && game_status ==1  && globalscore >=-10) {
+	while (!glfwWindowShouldClose(window) && game_status ==1  && globalscore >=-10 && globalscore <=100) {
 
 		now_time=glfwGetTime();
 
@@ -1954,6 +1970,10 @@ window = initGLFW(width, height);
 	}
 
   //Print final score
+  if(globalscore >=100)
+    cout <<"CONGRATULATIONS. YOU WIN!!!" <<endl;
+  else
+    cout <<"SORRY. YOU LOSE!" <<endl;
   cout << "Your final score is " << globalscore << endl;
 
 	glfwTerminate();
