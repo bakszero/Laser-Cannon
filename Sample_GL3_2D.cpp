@@ -442,8 +442,42 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 		}
 
 
+  /*  //Increase the speed of falling blocks
+    if(glfwGetKey(window, GLFW_KEY_N))
+    {
+      for( map<string,Base>::iterator it=brickobj.begin() ; it!=brickobj.end() ;  )
+    	{
+    		string currentobj = it->first;
+    		if(brickobj[currentobj].status==0)
+    		{
+    			it++;
+    			continue;
+    		}
+
+        if(brickobj[currentobj].y_speed <=0.032)
+          brickobj[currentobj].y_speed+=0.002;
+
+      }
+    }
 
 
+    //Decrease the speed of falling blocks
+    if(glfwGetKey(window, GLFW_KEY_M))
+    {
+      for( map<string,Base>::iterator it=brickobj.begin() ; it!=brickobj.end() ;  )
+    	{
+    		string currentobj = it->first;
+    		if(brickobj[currentobj].status==0)
+    		{
+    			it++;
+    			continue;
+    		}
+
+        if(brickobj[currentobj].y_speed >=0.008)
+          brickobj[currentobj].y_speed-=0.002;
+
+      }
+    }*/
 
 
 	}
@@ -894,7 +928,7 @@ void createMirror (string name, GLfloat weight, color A, color B, color C, color
 	//tempobj.col_type=color_type;
 	tempobj.inAir=0;
 	tempobj.x_speed=0;
-	tempobj.y_speed=0.018;
+	tempobj.y_speed=0;
 	tempobj.fixed=0;
 	tempobj.radius=(sqrt(height*height+width*width))/2;
 	tempobj.friction=0.4;
@@ -1312,6 +1346,19 @@ void draw (GLFWwindow* window)
 			it++;
 			continue;
 		}     //cout << "Status of current object is : " <<brickobj[currentobj].name << endl;
+
+    //N and M for increasing and decreasing speeds within permissible limits
+    if(glfwGetKey(window, GLFW_KEY_N))
+    {
+      if(brickobj[currentobj].y_speed <=0.032)
+          brickobj[currentobj].y_speed+=0.002;
+    }
+    if(glfwGetKey(window, GLFW_KEY_M))
+    {
+      if(brickobj[currentobj].y_speed >=0.008)
+          brickobj[currentobj].y_speed-=0.002;
+    }
+
 		glm::mat4 MVP;
 		Matrices.model = glm::mat4(1.0f);
 		//IF BRICK HAS FALLEN OUT OF THE SCREEN, REINVENT IT, SPEED supported
