@@ -88,6 +88,7 @@ std::map <string, Base> brickobj; //Only for brick objects
 std::map <string, Base> backgroundobj; //Only for the background objects
 std::map <string, Base> laserobj; //Only for laser objects
 std::map <string, Base> mirrorobj; //Only for mirror objects
+std::map <string, Base> scoreboardobj; //Only for scoreboard objects
 
 std::map<string, Base> randomobj; //For random objects that float around or are not defined above
 
@@ -370,7 +371,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 		//Translate the cannon front and rear objects up and down on keypress of S and F
 		if(glfwGetKey(window,GLFW_KEY_S))
 		{
-			if(cannonobj["rear"].y <= 3.3 && cannonobj["rear"].y >=-3.3)
+			if(cannonobj["rear"].y <= 2.7 && cannonobj["rear"].y >=-3.3)
 			{
 				cannonobj["rear"].y+=0.2;
 				cannonobj["front"].y+=0.2;
@@ -379,7 +380,7 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 
 		if(glfwGetKey(window,GLFW_KEY_F))
 		{
-			if(cannonobj["rear"].y <= 3.5 && cannonobj["rear"].y >=-3.5)
+			if(cannonobj["rear"].y <= 3.2 && cannonobj["rear"].y >=-3.5)
 			{
 				cannonobj["rear"].y-=0.2;
 				cannonobj["front"].y-=0.2;
@@ -716,6 +717,11 @@ void createRectangle (string name, GLfloat weight, color A, color B, color C, co
 		laserobj[name]=tempobj;
 		laserobj[name].angle=cannonobj["front"].angle;
 	}
+  else if(component=="scoreboardobj")
+  {
+    scoreboardobj[name]=tempobj;
+    scoreboardobj[name].status=0;
+  }
 
 	else
 		randomobj[name]=tempobj;
@@ -912,6 +918,210 @@ float camera_rotation_angle = 90;
 float rectangle_rotation = 0;
 float triangle_rotation = 0;
 
+
+//Segment clearer
+void segmentclear()
+{
+  scoreboardobj["one"].status =0;
+  scoreboardobj["two"].status =0;
+  scoreboardobj["three"].status =0;
+  scoreboardobj["four"].status =0;
+  scoreboardobj["five"].status =0;
+  scoreboardobj["six"].status =0;
+  scoreboardobj["seven"].status =0;
+  scoreboardobj["eight"].status =0;
+  scoreboardobj["nine"].status =0;
+  scoreboardobj["ten"].status =0;
+  scoreboardobj["eleven"].status =0;
+  scoreboardobj["twelve"].status =0;
+  scoreboardobj["thirteen"].status =0;
+  scoreboardobj["fourteen"].status =0;
+}
+
+//Segment setter
+
+void segmentsetter()
+{
+  GLint left = globalscore/10;
+  GLint right = globalscore%10;
+  //cout << "left is " << left << " and right is " <<right << endl;
+
+  //Set the status to 1 for the left digit
+  if(left==0)
+  {
+    scoreboardobj["one"].status =1;
+    scoreboardobj["two"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["five"].status =1;
+    scoreboardobj["six"].status =1;
+    scoreboardobj["seven"].status =0;
+
+  }
+  else if (left==1)
+  {
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+
+  }
+
+  else if (left==2)
+  {
+    scoreboardobj["two"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["five"].status =1;
+    scoreboardobj["six"].status =1;
+    scoreboardobj["seven"].status =1;
+
+
+
+  }
+  else if(left==3)
+  {
+    scoreboardobj["two"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["five"].status =1;
+    scoreboardobj["seven"].status =1;
+  }
+   else if (left == 4)
+  {
+    scoreboardobj["one"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["seven"].status =1;
+  }
+  else if (left==5)
+  {
+    scoreboardobj["one"].status =1;
+    scoreboardobj["two"].status =1;
+    scoreboardobj["seven"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["five"].status =1;
+  }
+  else if (left==6)
+  {
+    scoreboardobj["one"].status =1;
+    scoreboardobj["two"].status =1;
+    scoreboardobj["seven"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["five"].status =1;
+    scoreboardobj["six"].status =1;
+  }
+  else if(left==7)
+  {
+    scoreboardobj["two"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+  }
+  else if(left==8)
+  {
+    scoreboardobj["one"].status =1;
+    scoreboardobj["two"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["five"].status =1;
+    scoreboardobj["six"].status =1;
+    scoreboardobj["seven"].status =1;
+  }
+  else if (left==9)
+  {
+    scoreboardobj["one"].status =1;
+    scoreboardobj["two"].status =1;
+    scoreboardobj["three"].status =1;
+    scoreboardobj["four"].status =1;
+    scoreboardobj["five"].status =1;
+    scoreboardobj["seven"].status =1;
+  }
+
+  //Set the status to 1 for the right digit
+
+  if(right==0)
+  {
+    scoreboardobj["eight"].status =1;
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["twelve"].status =1;
+    scoreboardobj["thirteen"].status =1;
+  }
+  else if (right==1)
+  {
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+
+  }
+
+  else if (right==2)
+  {
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["twelve"].status =1;
+    scoreboardobj["thirteen"].status =1;
+    scoreboardobj["fourteen"].status =1;
+
+
+
+  }
+  else if(right==3)
+  {
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["twelve"].status =1;
+    scoreboardobj["fourteen"].status =1;
+  }
+   else if (right == 4)
+  {
+    scoreboardobj["eight"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["fourteen"].status =1;
+  }
+  else if (right==5)
+  {
+    scoreboardobj["eight"].status =1;
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["fourteen"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["twelve"].status =1;
+  }
+  else if (right==6)
+  {
+    scoreboardobj["eight"].status =1;
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["fourteen"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["twelve"].status =1;
+    scoreboardobj["thirteen"].status =1;
+  }
+  else if(right==7)
+  {
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+  }
+  else if(right==8)
+  {
+    scoreboardobj["eight"].status =1;
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["twelve"].status =1;
+    scoreboardobj["thirteen"].status =1;
+    scoreboardobj["fourteen"].status =1;
+  }
+  else if(right==9)
+  {
+    scoreboardobj["eight"].status =1;
+    scoreboardobj["nine"].status =1;
+    scoreboardobj["ten"].status =1;
+    scoreboardobj["eleven"].status =1;
+    scoreboardobj["twelve"].status =1;
+    scoreboardobj["fourteen"].status =1;
+  }
+}
+
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
 void draw (GLFWwindow* window)
@@ -983,12 +1193,14 @@ void draw (GLFWwindow* window)
 	//Mouse cursor position grab for both left and right clicks
 	glfwGetCursorPos(window, &rightmouse_x, &rightmouse_y);
 	glfwGetCursorPos(window, &leftmouse_x, &leftmouse_y);
-	//cout << rightmouse_x << endl << rightmouse_y << endl;
 	newrightmouse_x=(rightmouse_x - 300);
 	newrightmouse_x*=4/300.0;
 	newrightmouse_y=(rightmouse_y - 300);
 	newrightmouse_y*=4/300.0;
 	newrightmouse_y=-newrightmouse_y;
+
+  //cout << newrightmouse_x << " , " <<newrightmouse_y << endl;
+
 
 	newleftmouse_x=(leftmouse_x - 300);
 	newleftmouse_x*=4/300.0;
@@ -999,6 +1211,22 @@ void draw (GLFWwindow* window)
 
 
 	Matrices.projection = glm::ortho((float)(-4.0f/zoom_camera+x_change), (float)(4.0f/zoom_camera+x_change), (float)(-4.0f/zoom_camera+y_change), (float)(4.0f/zoom_camera+y_change), 0.1f, 500.0f);
+
+
+
+  //Clear status variable of every scoreboard Objects
+  segmentclear();
+
+
+
+  //Segment Display for respective numbers
+
+  segmentsetter();
+
+
+
+
+
 
 
 	//For Background Objects
@@ -1158,6 +1386,31 @@ void draw (GLFWwindow* window)
 		//  laserobj[currentobj].x += 0.25*cos(laserobj[currentobj].angle*M_PI/180.0f);
 		//  laserobj[currentobj].y += 0.25*sin(laserobj[currentobj].angle*M_PI/180.0f);
 		checkCollision(currentobj, "mirrorobj");
+	}
+
+
+  //For Scoreboard Objects, display them
+	for( map<string,Base>::iterator it=scoreboardobj.begin() ; it!=scoreboardobj.end() ;  it++)
+	{
+		string currentobj = it->first;
+   if(scoreboardobj[currentobj].status==0)
+      continue;
+		//  cout << currentobj << endl;
+		glm::mat4 MVP;
+		Matrices.model = glm::mat4(1.0f);
+		//  brickobj[currentobj].y-=brickobj[currentobj].y_speed;
+
+		glm::mat4 translateRectangle = glm::translate (glm::vec3(scoreboardobj[currentobj].x, scoreboardobj[currentobj].y, 0));        // glTranslatef
+	//	glm::mat4 rotateRectangle = glm::rotate((float)(mirrorobj[currentobj].angle*M_PI/180.0f), glm::vec3(0,0,1)); // rotate about vector (-1,1,1)
+		Matrices.model *= (translateRectangle/* *rotateRectangle*/);
+		MVP = VP * Matrices.model;
+		glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+		draw3DObject(scoreboardobj[currentobj].object);
+
+		//  laserobj[currentobj].x += 0.25*cos(laserobj[currentobj].angle*M_PI/180.0f);
+		//  laserobj[currentobj].y += 0.25*sin(laserobj[currentobj].angle*M_PI/180.0f);
+
 	}
 
 	// Increment angles
@@ -1358,6 +1611,33 @@ void checkCollision(string key, string check)
 }
 
 
+/*Create segments */
+void createSegment(GLdouble pos)
+{
+  color cloudwhite = {0.690, 0.769, 0.871};
+  createRectangle("one",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos,(-pos)-0.15,0.3,0.08,"scoreboardobj");
+  createRectangle("two",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos+0.2,(-pos),0.08,0.3,"scoreboardobj");
+  createRectangle("three",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos+0.4,(-pos)-0.15,0.3,0.08,"scoreboardobj");
+  createRectangle("four",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos+0.4,(-pos)-0.45,0.3,0.08,"scoreboardobj");
+  createRectangle("five",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos+0.2,(-pos)-0.6,0.08,0.3,"scoreboardobj");
+  createRectangle("six",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos,(-pos)-0.45,0.3,0.08,"scoreboardobj");
+  createRectangle("seven",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,pos+0.2,(-pos)-0.3,0.08,0.3,"scoreboardobj");
+
+  //pos+=0.2;
+  GLdouble newpos = pos + 0.55;
+  createRectangle("eight",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos,(-pos)-0.15,0.3,0.08,"scoreboardobj");
+  createRectangle("nine",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos+0.2,(-pos),0.08,0.3,"scoreboardobj");
+  createRectangle("ten",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos+0.4,(-pos)-0.15,0.3,0.08,"scoreboardobj");
+  createRectangle("eleven",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos+0.4,(-pos)-0.45,0.3,0.08,"scoreboardobj");
+  createRectangle("twelve",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos+0.2,(-pos)-0.6,0.08,0.3,"scoreboardobj");
+  createRectangle("thirteen",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos,(-pos)-0.45,0.3,0.08,"scoreboardobj");
+  createRectangle("fourteen",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,newpos+0.2,(-pos)-0.3,0.08,0.3,"scoreboardobj");
+}
+
+
+
+
+
 /* Initialize the OpenGL rendering properties */
 /* Add all the models to be created here */
 void initGL (GLFWwindow* window, int width, int height)
@@ -1400,7 +1680,7 @@ void initGL (GLFWwindow* window, int width, int height)
 	//Create backgroud image
 	createRectangle("sky",10000,cloudwhite,cloudwhite,cloudwhite,cloudwhite,0,0,600,800,"backgroundobj");
 	createCircle("sun",10000,skyblue1,3,3,0.5,100,"backgroundobj",1);
-	createCircle("sun2", 10000, cloudwhite, 2.9,3,0.5,100,"backgroundobj", 1);
+	createCircle("sun2", 10000, cloudwhite, 2.9,3.15,0.5,100,"backgroundobj", 1);
 
 
 	//Create bucket objects
@@ -1472,6 +1752,12 @@ void initGL (GLFWwindow* window, int width, int height)
 	createMirror("hey4",10000,darkpink,darkpink,darkpink,darkpink,3.1,-1.3,0.06,0.8,"mirrorobj", -140);
 
 
+
+  //Create Seven Segment Displays
+  createSegment(-3.8);
+
+
+
 	// Create and compile our GLSL program from the shaders
 	programID = LoadShaders( "Sample_GL.vert", "Sample_GL.frag" );
 	// Get a handle for our "MVP" uniform
@@ -1510,12 +1796,14 @@ window = initGLFW(width, height);
 
 
 	/* Draw in loop */
-	while (!glfwWindowShouldClose(window) && game_status ==1  && globalscore >=-5 ) {
+	while (!glfwWindowShouldClose(window) && game_status ==1  && globalscore >=-2 ) {
 
 		now_time=glfwGetTime();
 
-		//  if(now_time - brick_time >= 0.08)
+		//  if(now_time - brick_time >= 0.15)
 		// OpenGL Draw commands
+    segmentclear();
+
 		draw(window);
 
 
