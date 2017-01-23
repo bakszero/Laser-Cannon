@@ -1,7 +1,13 @@
 ### Instructions for compiling and running
 
-* To compile, open your terminal and type make.
-* Then run the executable by typing ./sample2D to start the game.
+* To compile, open your terminal.
+```bash
+ make
+```
+* Then run the executable to start the game.
+```bash
+ ./sample2D
+ ```
 
 ### Abstract
 A laser-cannon game where the objective is to score as many points as possible by destroying the black bricks before they reach the baskets on the floor.
