@@ -360,13 +360,13 @@ void keyboard (GLFWwindow* window, int key, int scancode, int action, int mods)
 	else if (action == GLFW_PRESS) {
 
 		//Bucket movement captures from the keyboard. glfwGetKey is the main function here
-		if (glfwGetKey(window,GLFW_KEY_LEFT) && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL))
+		if (glfwGetKey(window,GLFW_KEY_LEFT) && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) && (bucketobj["bucket1"].x- 0.5*bucketobj["bucket1"].width )>=-3.9)
 			bucketobj["bucket1"].x-=0.1;
-		if (glfwGetKey(window, GLFW_KEY_RIGHT) && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL))
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) && (bucketobj["bucket1"].x + 0.5*bucketobj["bucket1"].width)<= 3.9)
 			bucketobj["bucket1"].x+=0.1;
-		if (glfwGetKey(window,GLFW_KEY_LEFT ) && glfwGetKey(window, GLFW_KEY_LEFT_ALT))
+		if (glfwGetKey(window,GLFW_KEY_LEFT ) && glfwGetKey(window, GLFW_KEY_LEFT_ALT)&& ( bucketobj["bucket2"].x- 0.5*bucketobj["bucket2"].width) >=-3.9)
 			bucketobj["bucket2"].x-=0.1;
-		if (glfwGetKey(window,GLFW_KEY_RIGHT ) && glfwGetKey(window, GLFW_KEY_LEFT_ALT))
+		if (glfwGetKey(window,GLFW_KEY_RIGHT ) && glfwGetKey(window, GLFW_KEY_LEFT_ALT)&& (bucketobj["bucket2"].x+ 0.5*bucketobj["bucket2"].width) <= 3.9)
 			bucketobj["bucket2"].x+=0.1;
 
 
@@ -1402,9 +1402,9 @@ void draw (GLFWwindow* window)
 
 	//Bucket drag
 	//Smooth drag added
-	if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket1"].x+(0.75*bucketobj["bucket1"].width))) && (newrightmouse_x >= (bucketobj["bucket1"].x-(0.75*bucketobj["bucket1"].width))))
+	if ((rightmouse_click==1) && (newrightmouse_x>=-3.6 )&&(newrightmouse_x<=3.6)&&(newrightmouse_x<=(bucketobj["bucket1"].x+(0.75*bucketobj["bucket1"].width))) && (newrightmouse_x >= (bucketobj["bucket1"].x-(0.75*bucketobj["bucket1"].width))))
 		bucketobj["bucket1"].x=newrightmouse_x;
-	if ((rightmouse_click==1) && (newrightmouse_x<=(bucketobj["bucket2"].x+(0.75*bucketobj["bucket2"].width))) && (newrightmouse_x >= (bucketobj["bucket2"].x-(0.75*bucketobj["bucket2"].width))))
+	if ((rightmouse_click==1) &&  (newrightmouse_x>=-3.6 )&&(newrightmouse_x<=3.6)&& (newrightmouse_x<=(bucketobj["bucket2"].x+(0.75*bucketobj["bucket2"].width))) && (newrightmouse_x >= (bucketobj["bucket2"].x-(0.75*bucketobj["bucket2"].width))))
 		bucketobj["bucket2"].x=newrightmouse_x;
 
 
@@ -1426,7 +1426,7 @@ void draw (GLFWwindow* window)
 	}
 
 	//Cannon drag via mouse
-	if ((rightmouse_click==1) && (newrightmouse_x<=(cannonobj["front"].x+(0.5*cannonobj["front"].width))) && (newrightmouse_x >= (cannonobj["rear"].x-(0.5*bucketobj["bucket1"].width)))
+	if ((rightmouse_click==1) && (newrightmouse_y <= 2.7 ) &&(newrightmouse_y>=-3.5)&&(newrightmouse_x<=(cannonobj["front"].x+(0.5*cannonobj["front"].width))) && (newrightmouse_x >= (cannonobj["rear"].x-(0.5*bucketobj["bucket1"].width)))
 			&& (newrightmouse_y<=cannonobj["rear"].y+(0.8*cannonobj["rear"].height)) && (newrightmouse_y>=cannonobj["rear"].y-(0.8*cannonobj["rear"].height)))
 	{
 		cannonobj["rear"].y=newrightmouse_y;
