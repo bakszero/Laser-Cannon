@@ -1496,6 +1496,10 @@ void draw (GLFWwindow* window)
 		string currentobj = it->first;
 		if(laserobj[currentobj].status==0)
 			continue;
+		if(laserobj[currentobj].x >=4 || laserobj[currentobj].x <=-4 || laserobj[currentobj].y>=4 || laserobj[currentobj].y<=-4)
+		{
+			laserobj[currentobj].status=0;
+		}
 		//cout << currentobj << endl;
 		glm::mat4 MVP;
 		Matrices.model = glm::mat4(1.0f);
