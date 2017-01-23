@@ -8,10 +8,6 @@ A laser-cannon game where the objective is to score as many points as possible b
 Destroying black bricks gives you points and collecting the red and green bricks in their respective baskets gives you points too.
 If you successfully score more than 100 points, you win the game.
 
-### Gameplay
-![Screenshot of Cannon Game](gameplay.gif "Screenshot")
-* (The quality of the gif had to be reduced to reduce its size)
-
 ### Controls:
 
 ##### Mouse:
